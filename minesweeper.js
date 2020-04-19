@@ -1,6 +1,6 @@
 let boxArr = [];
-let gameSize = 6;
-let bombs = 3;
+let gameSize = 10;
+let bombs = 10;
 const xC = [1, 1, 1, 0, 0, -1, -1, -1];
 const yC = [-1, 0, 1, -1, 1, -1, 0, 1];
 
@@ -19,36 +19,6 @@ const yC = [-1, 0, 1, -1, 1, -1, 0, 1];
 	check(x, y, i + 1);
 }*/
 
-const bombNum = (x, y, i=0, n=0) => {
-	if (i === 8) return n;
-	const dx = x + xC[i];
-	const dy = y + yC[i];
-	if (boxArr[dx] && boxArr[dx][dy] && (boxArr[dx][dy].num === "bomb")) {
-		n++;
-		console.log(n);
-	}
-	return bombNum(x, y, i + 1, n);
-}
-
-const rand = () => Math.floor(Math.random() * gameSize);
-
-const assignBombs = (size=bombs) => {
-	if (!size) return ;
-	x = rand();
-	y = rand();
-	if (!boxArr[x][y].num) {
-		boxArr[x][y].num = "bomb";
-		return assignBombs(size - 1);
-	}
-	else return assignBombs(size);
-}
-
-const assignNums = (x=0, y=0) => {
-	if (x === boxArr.length) return ;
-	if (y === boxArr.length) return assignNums(x + 1);
-	if (!boxArr[x][y].num) boxArr[x][y].num = bombNum(x, y); 
-	return assignNums(x, y + 1);
-}	
 
 function Box (x, y) {
 	const box = document.createElement('div');
@@ -64,6 +34,37 @@ function Box (x, y) {
 		box.innerHTML = this.num;
 		//checkClick(x, y);	
 	}
+}
+
+const rand = () => Math.floor(Math.random() * gameSize);
+
+const bombNum = (x, y, i=0, n=0) => {
+	if (i === 8) return n;
+	const dx = x + xC[i];
+	const dy = y + yC[i];
+	if (boxArr[dx] && boxArr[dx][dy] && (boxArr[dx][dy].num === "bomb")) {
+		n++;
+		console.log(n);
+	}
+	return bombNum(x, y, i + 1, n);
+}
+
+const assignNums = (x=0, y=0) => {
+	if (x === boxArr.length) return ;
+	if (y === boxArr.length) return assignNums(x + 1);
+	if (!boxArr[x][y].num) boxArr[x][y].num = bombNum(x, y); 
+	return assignNums(x, y + 1);
+}
+	
+const assignBombs = (size=bombs) => {
+	if (!size) return ;
+	x = rand();
+	y = rand();
+	if (!boxArr[x][y].num) {
+		boxArr[x][y].num = "bomb";
+		return assignBombs(size - 1);
+	}
+	else return assignBombs(size);
 }
 
 const build = (x=0, y=0, row=[]) => {
