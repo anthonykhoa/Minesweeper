@@ -1,7 +1,7 @@
 let boxArr = [];
 let gameSize = 5;
 let bombs = 3;
-let firstClick = true;
+let firstClick;
 const xC = [1, 1, 1, 0, 0, -1, -1, -1];
 const yC = [-1, 0, 1, -1, 1, -1, 0, 1];
 
@@ -10,13 +10,13 @@ const yC = [-1, 0, 1, -1, 1, -1, 0, 1];
 	if (boxArr[x + xC[i]][y + yC[i]])
 		if (!boxArr[x + xC[i]][y + yC[i]].num)
 			check(x + xC[i], y + yC[i])
-			//check() something ehre
+			//box.onclick() something ehre
 	check(x, y, i + 1);
 }*/
 
-const toggleClicks = (b) => boxArr.forEach(r => r.forEach(c => c.clickSwitch(b)))
+const toggleClicks = b => boxArr.forEach(r => r.forEach(c => c.clickSwitch(b)))
 
-const rand = () => Math.floor(Math.random() * gameSize);
+const rand = () => Math.floor(Math.random() * gameSize)
 
 const bombNum = (x, y, i=0, n=0, dx=x+xC[i], dy=y+yC[i]) => {
 	if (i === 8) return n;
@@ -55,6 +55,7 @@ const start = () => {
 	container.style.width = `${gameSize * 50}` + `px`;
 	build();
 	toggleClicks(true);
+	firstClick = true;
 }
 
 function Box (x, y) {
@@ -76,10 +77,10 @@ function Box (x, y) {
 		box.classList.add('selected');
 		box.innerHTML = this.num ? this.num : '';
 		//if (!this.num) checkClick(x, y);
-		if (this.num === "bomb") {
+		/*if (this.num === "bomb") {
 			alert("HAHAHHAH U HAVE LOST. U CAN TRY AGAIN OR RAGEQUIT");
 			toggleClicks(false);
-		}
+		}*/
 	}
 }
 
