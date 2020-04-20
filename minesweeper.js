@@ -14,6 +14,7 @@ const yC = [-1, 0, 1, -1, 1, -1, 0, 1];
 	check(x, y, i + 1);
 }*/
 
+const toggleClicks = (b) => boxArr.forEach(r => r.forEach(c => c.clickSwitch(b)))
 
 const rand = () => Math.floor(Math.random() * gameSize);
 
@@ -27,7 +28,7 @@ const assignNums = (x=0, y=0) => {
 	if (x === boxArr.length) return ;
 	if (y === boxArr.length) return assignNums(x + 1);
 	if (!boxArr[x][y].num) boxArr[x][y].num = bombNum(x, y); 
-	return assignNums(x, y + 1);
+	assignNums(x, y + 1);
 }
 	
 const assignBombs = (x1, y1, size=bombs, x=rand(), y=rand()) => {
@@ -37,7 +38,7 @@ const assignBombs = (x1, y1, size=bombs, x=rand(), y=rand()) => {
 		boxArr[x][y].num = "bomb";
 		return assignBombs(x1, y1, size - 1);
 	}
-	else return assignBombs(x1, y1, size);
+	assignBombs(x1, y1, size);
 }
 
 const build = (x=0, y=0, row=[]) => {
@@ -53,6 +54,7 @@ const build = (x=0, y=0, row=[]) => {
 const start = () => {
 	container.style.width = `${gameSize * 50}` + `px`;
 	build();
+	toggleClicks(true);
 }
 
 function Box (x, y) {
@@ -60,6 +62,7 @@ function Box (x, y) {
 	box.className = 'box';
 	container.appendChild(box);
 	this.num = 0;
+	this.clickSwitch = (b) => box.style.pointerEvents = b ? 'auto' : 'none';
 	box.oncontextmenu = (e) => {
 		box.classList.remove('flagged');
 		e.preventDefault();
@@ -71,8 +74,12 @@ function Box (x, y) {
 			firstClick = false;
 		}
 		box.classList.add('selected');
-		box.innerHTML = this.num;
-		checkClick(x, y);	
+		box.innerHTML = this.num ? this.num : '';
+		//if (!this.num) checkClick(x, y);
+		if (this.num === "bomb") {
+			alert("HAHAHHAH U HAVE LOST. U CAN TRY AGAIN OR RAGEQUIT");
+			toggleClicks(false);
+		}
 	}
 }
 
