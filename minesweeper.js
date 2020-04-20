@@ -1,19 +1,18 @@
 let boxArr = [];
-let gameSize = 5;
-let bombs = 3;
+let gameSize = 10;
+let bombs = 8;
 let firstClick;
 const xC = [1, 1, 1, 0, 0, -1, -1, -1]; 
 const yC = [-1, 0, 1, -1, 1, -1, 0, 1];
 
-//mark is used to mark value '0' boxes that have already been clicked
-const checkClick = (x, y, i=0, dx=x+xC[i], dy=y+yC[i]) => {
-	if (i === 8) return ;
-	if (boxArr[dx] && boxArr[dx][dy] && !boxArr[dx][dy].mark) 
-		!boxArr[dx][dy].num ? boxArr[dx][dy].click() : boxArr[dx][dy].select();
-	return checkClick(x, y, i + 1);
+//checks all 8 sides to see if others are 0
+const clickedZero = (x, y, i=0, dx=x+xC[i], dy=y+yC[i]) => {
+	if (i === 8) return ;	//if the box exists
+	if (boxArr[dx] && boxArr[dx][dy]) //if its 0 and unselected
+		if (!boxArr[dx][dy].num && !boxArr[dx][dy].selected())
+	 		boxArr[dx][dy].click();
+	return clickedZero(x, y, i + 1);
 }
-
-const toggleClicks = b => boxArr.forEach(r => r.forEach(c => c.clickSwitch(b)))
 
 const rand = () => Math.floor(Math.random() * gameSize)
 
@@ -31,7 +30,7 @@ const assignNums = (x=0, y=0) => {
 	assignNums(x, y + 1);
 }
 	
-// x1/y1=init click coords, checks to make sure we dont place bomb there
+// x1/y1=init_click_coords, checks to make sure we dont place bomb there
 const assignBombs = (x1, y1, size=bombs, x=rand(), y=rand()) => {
 	if (!size) return ;
 	if ((x === x1) && (y === y1)) return assignBombs(x1, y1, size);
@@ -59,20 +58,21 @@ const start = () => {
 	firstClick = true;
 }
 
+const toggleClicks = b => boxArr.forEach(r => r.forEach(c => c.clickSwitch(b)))
+
+const revealAll = () => boxArr.forEach(r => r.forEach(c => c.click()))
+
 function Box (x, y) {
 	const box = document.createElement('div');
 	box.className = 'box';
 	container.appendChild(box);
 	this.num = 0;
-	this.mark = false;
 	this.clickSwitch = (b) => box.style.pointerEvents = b ? 'auto' : 'none';
-	this.select = () => {
-		box.classList.add('selected');
-		this.mark = true;
-		box.innerHTML = this.num ? this.num : '';
-	}
+	this.selected = () => box.className.includes('selected');
+	this.flag = () => box.className.includes('flagged');
 	box.oncontextmenu = (e) => {
-		box.classList.remove('flagged');
+		if (!this.flag()) box.classList.add('flagged');
+		else box.classList.remove('flagged');
 		e.preventDefault();
 	}
 	this.click = () => {
@@ -81,14 +81,39 @@ function Box (x, y) {
 			assignNums();
 			firstClick = false;
 		}
+		/*if (win) {
+			alert("YOU WIN!");
+			return revealAll();
+		}*/
 	/*	if (this.num === "bomb") { //incase someone is noob at game
 			alert("BAHAHAHHAH U HAVE LOST. U CAN TRY AGAIN OR RAGEQUIT");
 			toggleClicks(false);
 		}*/
-		this.select();
-		if (!this.num) checkClick(x, y); //checks if sides are 0 too
+		box.classList.add('selected');
+		box.classList.remove('flagged');
+		box.innerHTML = this.num ? this.num : '';
+		if (!this.num) clickedZero(x, y); 
 	}
 	box.onclick = () => this.click();
 }
+
+const invalidInputs = () => {
+	if (isNaN(Number(boxChange.value)) || isNaN(Number(bombChange.value)))
+		return true;
+	return false;
+}
+
+reveal.addEventListener('click', () => revealAll());
+//have to safegaurd against bad inputs and bomb# more than # of boxes
+replay.addEventListener('click', () => {
+	if (invalidInputs()) return alert("INVALID INPUT DETECTED, FIX PLZ");
+	container.innerHTML = '';
+	boxArr = [];
+	gameSize = Number(boxChange.value) || gameSize;
+	bombs = Number(bombChange.value) || bombs;
+	boxChange.value = '';
+	bombChange.value = '';		
+	start();
+})
 
 start();
