@@ -23,13 +23,55 @@
 	margin-top: 7%
 }
 
+#describe {
+	text-align: center;
+	margin-top: 2%;
+}
+
 #inputs {
 	text-align: center;
 	margin: auto;
 	margin-top: 3%;
 }
 
+.insult {
+	padding: 0 0 0 0;
+	position: absolute;
+	left: 0;
+	width: 33%;
+	height: 200px;
+}
+
+#insults {
+	padding: 0;
+	position: absolute;
+	top: -5px;
+	margin: 0;
+	word-break: break-word;
+	font-size: 50px;
+}
+
+.level {
+	position: absolute;
+	right: 0;
+	width: 33%;
+	height: 200px;
+}
+
+.level button {
+	height: 60px;
+	width: 170px;
+	font-size: 25px;
+}
+
 table {
+	width: 33%;
 	margin: auto;
 	margin-bottom: 1%;
+}
+
+#replay, #reveal {
+	height: 60px;
+	width: 100px;
+	font-size: 25px;
 }
