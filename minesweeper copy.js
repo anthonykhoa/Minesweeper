@@ -6,91 +6,55 @@ const cXY = [[1, -1], [1, 0], [1, 1], [0, 1],
 			[0, -1], [-1, -1], [-1, 0], [-1, 1]];
 
 //checks all 8 sides to see if others are 0
-const clickedZero = (x, y) => {
-	cXY.forEach((e) => {
-		const dx = x + e[0];
-		const dy = y + e[1];
-		if (boxArr[dx] && boxArr[dx][dy]) //if its 0 and unselected
-			if (!boxArr[dx][dy].num && !boxArr[dx][dy].selected())
-	 			boxArr[dx][dy].click();
-	});
+const clickedZero = (x, y, i=0, d) => {
+	if (i === 8) return ;	//if the box exists
+	const dx = x + cXY[i][0];
+	const dy = y + cXY[i][1]
+	if (boxArr[dx] && boxArr[dx][dy]) //if its 0 and unselected
+		if (!boxArr[dx][dy].num && !boxArr[dx][dy].selected())
+	 		boxArr[dx][dy].click();
+	return clickedZero(x, y, i + 1);
 }
+
 
 const rand = () => Math.floor(Math.random() * gameSize)
 
-const bombNum = (x, y, n=0, dx, dy) => {
-	cXY.forEach(e => {
-		const dx = x + e[0]
-		const dy = y + e[1];
-		if (boxArr[dx] && boxArr[dx][dy] && (boxArr[dx][dy].num === "bomb")) n++;
-	});
-	return n;
+//returns total # of bombs around a box
+const bombNum = (x, y, i=0, n=0) => {
+	if (i === 8) return n;
+	const dx = x + cXY[i][0]
+	const dy = y + cXY[i][1];
+	if (boxArr[dx] && boxArr[dx][dy] && (boxArr[dx][dy].num === "bomb")) n++;
+	return bombNum(x, y, i + 1, n);
 }
 
 const assignNums = (x=0, y=0) => {
-	boxArr.forEach((r, x) => {
-		r.forEach((c, y) => {
-			if (!boxArr[x][y].num) boxArr[x][y].num = bombNum(x, y);
-		});
-	});
-}
-
-//forEach methodoloy is to make array of xy coords with suitable coords.
-//first fill array with rand(), use splice to add more if needed
-
-/*const assignBombs = (x1, y1, size=bombs, x, y, arr=[]) => {
-	a.length = bombs;
-	a.fill([rand(), rand()]);
-
-	while (size) {
-		x = rand();
-		y = rand();
-		if ((x !== x1) && (y !== y1)) {
-			if (!boxArr[x][y].num) {
-				boxArr[x][y].num = "bomb";
-				size--;
-			}
-		}
-	}
-}*/
-
-const assignBombs = (x1, y1, size=bombs, x, y) => {
-	while (size) {
-		x = rand();
-		y = rand();
-		if ((x !== x1) && (y !== y1)) {
-			if (!boxArr[x][y].num) {
-				boxArr[x][y].num = "bomb";
-				size--;
-			}
-		}
-	}
-}
-
-const build = () => {
-	boxArr.length = gameSize;
-	boxArr.fill([]);
-	boxArr.forEach((r, x) => {
-		r.length = gameSize;
-		r.fill(0);
-		r.forEach((c, y) => {
-			console.log(x, y);
-			boxArr[x].splice(y, 1, new Box(x, y));
-		});
-	});
+	if (x === boxArr.length) return ;
+	if (y === boxArr.length) return assignNums(x + 1);
+	if (!boxArr[x][y].num) boxArr[x][y].num = bombNum(x, y); 
+	assignNums(x, y + 1);
 }
 	
-// const build = (x=0, y=0) => {
-// 	while (x < gameSize) {
-// 		boxArr.push([]);
-// 		y = 0;
-// 		while (y < gameSize) {
-// 			boxArr[x].push(new Box(x, y));
-// 			y++;
-// 		}
-// 		x++;	
-// 	}
-// }
+// x1/y1=init_click_coords, checks to make sure we dont place bomb there
+const assignBombs = (x1, y1, size=bombs, x=rand(), y=rand()) => {
+	if (!size) return ;
+	if ((x === x1) && (y === y1)) return assignBombs(x1, y1, size);
+	if (!boxArr[x][y].num) {
+		boxArr[x][y].num = "bomb";
+		return assignBombs(x1, y1, size - 1);
+	}
+	assignBombs(x1, y1, size);
+}
+
+const build = (x=0, y=0, row=[]) => {
+	if (x === gameSize) return ;
+	if (y === gameSize) {
+		boxArr.push(row);
+		return build(x + 1);
+	}
+	row.push(new Box(x, y));
+	build(x, y + 1, row);
+}
 
 const start = () => {
 	container.style.width = `${gameSize * 50}` + `px`;
@@ -125,7 +89,7 @@ function Box (x, y) {
 		/*if (win) {
 			alert("YOU WIN!");
 			aftermath.innertext = 'YOU WON PURELY THRU LUCK!'
-		return revealAll();
+			return revealAll();
 		}*/
 	/*	if (this.num === "bomb") { //incase someone is noob at game
 			alert("BAHAHAHHAH U HAVE LOST. U CAN TRY AGAIN OR RAGEQUIT");
@@ -134,7 +98,7 @@ function Box (x, y) {
 		box.classList.add('selected');
 		box.classList.remove('flagged');
 		box.innerHTML = this.num ? this.num : '';
-		if (!this.num && (this.num !== "bomb")) clickedZero(x, y);
+		if (!this.num) clickedZero(x, y); 
 	}
 	box.onclick = () => this.click();
 }

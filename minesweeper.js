@@ -63,9 +63,19 @@ const start = () => {
 	firstClick = true;
 }
 
-const toggleClicks = b => boxArr.forEach(r => r.forEach(c => c.clickSwitch(b)))
+const toggleClicks = (b, x=0, y=0) => {
+	if (x === boxArr.length) return ;
+	if (y === boxArr.length) return toggleClicks(b, x + 1);
+	boxArr[x][y].clickSwitch(b);
+	toggleClicks(b, x, y + 1);
+}
 
-const revealAll = () => boxArr.forEach(r => r.forEach(c => c.click()))
+const revealAll = (x=0, y=0) => {
+	if (x === boxArr.length) return ;
+	if (y === boxArr.length) return revealAll(x + 1);
+	boxArr[x][y].click();
+	revealAll(x, y + 1);
+}
 
 function Box (x, y) {
 	const box = document.createElement('div');
@@ -98,7 +108,7 @@ function Box (x, y) {
 		box.classList.add('selected');
 		box.classList.remove('flagged');
 		box.innerHTML = this.num ? this.num : '';
-		if (!this.num) clickedZero(x, y); 
+		if (!this.num && (this.num !== "bomb")) clickedZero(x, y);
 	}
 	box.onclick = () => this.click();
 }
