@@ -19,7 +19,7 @@ const clickedZero = (x, y, i=0, dx, dy) => {
 		dx = x + cXY[i][0];
 		dy = y + cXY[i][1];
 		if (boxArr[dx] && boxArr[dx][dy]) //if its 0 and unselected
-			if (!boxArr[dx][dy].num && !boxArr[dx][dy].selected())
+			if ((boxArr[dx][dy].num !== "bomb") && !boxArr[dx][dy].selected())
 	 			boxArr[dx][dy].click();
 		i++;
 	}	
