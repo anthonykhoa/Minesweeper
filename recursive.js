@@ -154,7 +154,8 @@ const restart = (bool, level) => {
 }
 
 reveal.addEventListener('click', () => {
-	if (!win) insults.innerText = "LOL CHEATER HAHAHAHAH";
+	if (win !== (gameSize**2 - bombs))
+		insults.innerText = "LOL CHEATER HAHAHAHAH";
 	notReveal = false;
  	revealAll();
  });
